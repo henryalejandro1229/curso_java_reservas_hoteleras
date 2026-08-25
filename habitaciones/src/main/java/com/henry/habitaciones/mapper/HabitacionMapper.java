@@ -1,6 +1,6 @@
 package com.henry.habitaciones.mapper;
 
-import com.henry.commons.dto.habitaciones.HabitacionRequestt;
+import com.henry.commons.dto.habitaciones.HabitacionRequest;
 import com.henry.commons.dto.habitaciones.HabitacionResponse;
 import com.henry.commons.enums.EstadoHabitacion;
 import com.henry.commons.enums.EstadoRegistro;
@@ -9,10 +9,10 @@ import com.henry.habitaciones.entity.Habitacion;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HabitacionMapper implements CommonMapper<HabitacionRequestt, HabitacionResponse, Habitacion> {
+public class HabitacionMapper implements CommonMapper<HabitacionRequest, HabitacionResponse, Habitacion> {
 
     @Override
-    public Habitacion requestAEntidad(HabitacionRequestt request) {
+    public Habitacion requestAEntidad(HabitacionRequest request) {
         if (request == null) return null;
 
         return Habitacion.builder()

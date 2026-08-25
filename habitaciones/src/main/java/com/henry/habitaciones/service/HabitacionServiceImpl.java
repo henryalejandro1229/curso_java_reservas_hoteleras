@@ -1,6 +1,6 @@
 package com.henry.habitaciones.service;
 
-import com.henry.commons.dto.habitaciones.HabitacionRequestt;
+import com.henry.commons.dto.habitaciones.HabitacionRequest;
 import com.henry.commons.dto.habitaciones.HabitacionResponse;
 import com.henry.commons.enums.EstadoHabitacion;
 import com.henry.commons.enums.EstadoRegistro;
@@ -55,18 +55,16 @@ public class HabitacionServiceImpl implements HabitacionService {
     }
 
     @Override
-    public HabitacionResponse registrar(HabitacionRequestt request) {
+    public HabitacionResponse registrar(HabitacionRequest request) {
         log.info("Registrando nueva habitación {}", request.numero());
 
         validarDatosUnicos(request);
 
+        TipoHabitacion tipoHabitacion = TipoHabitacion.ObtenerTipoHabitacionPorCodigo(request.idTipoHabitacion());
+
         Habitacion habitacion = habitacionMapper.requestAEntidad(request);
-        habitacion.actualizar(
-                request.numero(),
-                TipoHabitacion.ObtenerTipoHabitacionPorCodigo(request.idTipoHabitacion()),
-                request.capacidad(),
-                request.precio()
-        );
+
+        habitacion.actualizarTipoHabitacion(tipoHabitacion);
 
         habitacionRepository.save(habitacion);
 
@@ -76,7 +74,7 @@ public class HabitacionServiceImpl implements HabitacionService {
     }
 
     @Override
-    public HabitacionResponse actualizar(HabitacionRequestt request, long id) {
+    public HabitacionResponse actualizar(HabitacionRequest request, long id) {
         Habitacion habitacion = obtenerHabitacionActivaOException(id);
 
         log.info("Actualizando habitación con id: {}", id);
@@ -97,17 +95,16 @@ public class HabitacionServiceImpl implements HabitacionService {
 
     @Override
     public void actualizarEstadoHabitacion(Long idHabitacion, Long idEstado) {
-        Habitacion habitacion = obtenerHabitacionActivaOException(idHabitacion);
-
         log.info("Actualizando estado de habitación con idEstado: {}", idEstado);
 
+        Habitacion habitacion = obtenerHabitacionActivaOException(idHabitacion);
+
         EstadoHabitacion nuevoEstado = EstadoHabitacion.ObtenerEstadoHabitacionPorCodigo(idEstado);
-        EstadoHabitacion estadoAnterior = habitacion.getEstadoHabitacion();
 
         habitacion.actualizarEstadoHabitacion(nuevoEstado);
 
-        log.info("Estado de habitación con id {} cambió de {} a {}",
-                idHabitacion, estadoAnterior, nuevoEstado);
+        log.info("Estado de habitación con id: {} actualizado a: {}",
+                idHabitacion, nuevoEstado);
     }
 
     @Override
@@ -128,7 +125,7 @@ public class HabitacionServiceImpl implements HabitacionService {
                 ));
     }
 
-    private void validarDatosUnicos(HabitacionRequestt request) {
+    private void validarDatosUnicos(HabitacionRequest request) {
         log.info("Validando número de habitación único...");
 
         if (habitacionRepository.existsByNumeroAndEstadoRegistro(request.numero(), EstadoRegistro.ACTIVO))
@@ -136,7 +133,7 @@ public class HabitacionServiceImpl implements HabitacionService {
                     "Ya existe una habitación activa registrada con el número: " + request.numero());
     }
 
-    private void validarCambiosUnicos(HabitacionRequestt request, Long id) {
+    private void validarCambiosUnicos(HabitacionRequest request, Long id) {
         log.info("Validando número de habitación único...");
 
         if (habitacionRepository.existsByNumeroAndEstadoRegistroAndIdNot(

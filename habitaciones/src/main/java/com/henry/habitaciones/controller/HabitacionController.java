@@ -1,7 +1,7 @@
 package com.henry.habitaciones.controller;
 
 import com.henry.commons.controller.CommonController;
-import com.henry.commons.dto.habitaciones.HabitacionRequestt;
+import com.henry.commons.dto.habitaciones.HabitacionRequest;
 import com.henry.commons.dto.habitaciones.HabitacionResponse;
 import com.henry.habitaciones.service.HabitacionService;
 import jakarta.validation.constraints.Positive;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
-public class HabitacionController extends CommonController<HabitacionRequestt, HabitacionResponse, HabitacionService> {
+public class HabitacionController extends CommonController<HabitacionRequest, HabitacionResponse, HabitacionService> {
 
     public HabitacionController(HabitacionService service) {
         super(service);
