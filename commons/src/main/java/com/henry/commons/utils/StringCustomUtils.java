@@ -1,13 +1,11 @@
 package com.henry.commons.utils;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class StringCustomUtils {
 
-    public static final DateTimeFormatter FORMATOFECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-    public static final DateTimeFormatter FORMATOHORA = DateTimeFormatter.ofPattern("HH:mm");
+    public static final DateTimeFormatter FORMATOFECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm a");
 
     public static void validarNoVacio(String texto, String mensaje) {
         if (texto == null || texto.isBlank())
@@ -28,7 +26,7 @@ public class StringCustomUtils {
                 .replace("ú", "u").replace("ü", "u");
     }
 
-    public static String localDateAString(LocalDate fecha) {
-        return fecha == null ? null : fecha.format(FORMATOFECHA);
+    public static String localDateTimeAString(LocalDateTime fecha) {
+        return fecha == null ? "" : fecha.format(FORMATOFECHA);
     }
 }
