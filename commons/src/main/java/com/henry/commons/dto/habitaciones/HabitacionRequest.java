@@ -7,11 +7,10 @@ import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-public record HabitacionRequestt(
+public record HabitacionRequest(
 
-        @NotNull(message = "La edad es requerida")
-        @Min(value = 18, message = "La edad minima es de 18 años")
-        @Max(value = 100, message = "La edad maxima es de 100 años")
+        @NotNull(message = "El número es requerida")
+        @Positive(message = "El número debe ser positivo")
         Short numero,
 
         @NotNull(message = "El id del tipo habitacion es requerido")
@@ -19,8 +18,8 @@ public record HabitacionRequestt(
         Long idTipoHabitacion,
 
         @NotNull(message = "La capacidad es requerida")
-        @Min(value = 18, message = "La capacidad minima es de 18 años")
-        @Max(value = 100, message = "La capacidad maxima es de 100 años")
+        @Min(value = 1, message = "La capacidad mínima es de 1 persona")
+        @Max(value = 10, message = "La capacidad máxima es de 10 personas")
         Short capacidad,
 
         @NotNull(message = "El precio es requerido")
