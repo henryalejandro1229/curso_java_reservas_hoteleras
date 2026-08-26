@@ -57,14 +57,6 @@ public class Reserva {
     @Column(name = "ESTADO_REGISTRO")
     private EstadoRegistro estadoRegistro;
 
-    public void setHuesped(Long idHuesped) {
-        this.idHuesped = idHuesped;
-    }
-
-    public void setHabitacion(Long idHabitacion) {
-        this.idHabitacion = idHabitacion;
-    }
-
     public void validarNoEliminado() {
         if (this.estadoRegistro == EstadoRegistro.ELIMINADO)
             throw new IllegalArgumentException("La reserva ya fue eliminada");

@@ -99,7 +99,7 @@ public class HabitacionServiceImpl implements HabitacionService {
 
         Habitacion habitacion = obtenerHabitacionActivaOException(idHabitacion);
 
-        EstadoHabitacion nuevoEstado = EstadoHabitacion.ObtenerEstadoHabitacionPorCodigo(idEstado);
+        EstadoHabitacion nuevoEstado = EstadoHabitacion.obtenerEstadoHabitacionPorCodigo(idEstado);
 
         habitacion.actualizarEstadoHabitacion(nuevoEstado);
 
