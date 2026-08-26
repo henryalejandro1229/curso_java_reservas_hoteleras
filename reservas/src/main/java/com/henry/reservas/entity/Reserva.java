@@ -70,23 +70,49 @@ public class Reserva {
             throw new IllegalArgumentException("La reserva ya fue eliminada");
     }
 
+    private void validarEliminacionPermitida(){
+        validarNoEliminado();
+
+        if (!estadoReserva.isEliminable())
+            throw new IllegalStateException(
+                    "La reserva con estado " + estadoReserva
+                            + " no puede eliminarse");
+    }
+
+    private void validarActualizacionPermitida(){
+        validarNoEliminado();
+
+        if (!EstadoReserva.CONFIRMADA.equals(estadoReserva))
+            throw new IllegalStateException(
+                    "La reserva con estado " + estadoReserva
+                            + " no puede actualizarse");
+    }
+
     public void actualizar(Long idHuesped, Long idHabitacion) {
         this.validarNoEliminado();
+        validarActualizacionPermitida();
 
         this.idHuesped = idHuesped;
         this.idHabitacion = idHabitacion;
     }
 
-    public void actualizarEstadoReserva(EstadoReserva estadoReserva) {
+    public void actualizarEstadoReserva(EstadoReserva nuevoEstado) {
         this.validarNoEliminado();
+        validarActualizacionPermitida();
 
         if (estadoReserva == null)
             throw new IllegalArgumentException("El estado de reserva es requerido");
 
-        this.estadoReserva = estadoReserva;
+        if (!estadoReserva.puedeCambiarA(nuevoEstado))
+            throw new IllegalStateException("La cita con estado "
+                    + estadoReserva + " solo puede cambiar a: "
+                    + estadoReserva.puedeCambiar());
+
+        this.estadoReserva = nuevoEstado;
     }
 
     public void eliminar() {
+        validarEliminacionPermitida();
         this.estadoRegistro = EstadoRegistro.ELIMINADO;
     }
 }
