@@ -18,7 +18,7 @@ public enum EstadoHabitacion {
 
     private final String descripcion;
 
-    public static EstadoHabitacion ObtenerEstadoHabitacionPorCodigo(Long codigo) {
+    public static EstadoHabitacion obtenerEstadoHabitacionPorCodigo(Long codigo) {
         for (EstadoHabitacion e : values()) {
             if(Objects.equals(e.codigo, codigo))
                 return e;

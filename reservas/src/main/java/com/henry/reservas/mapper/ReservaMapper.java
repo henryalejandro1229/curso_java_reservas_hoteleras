@@ -1,5 +1,6 @@
 package com.henry.reservas.mapper;
 
+import com.henry.commons.dto.habitaciones.DataHabitacion;
 import com.henry.commons.dto.habitaciones.HabitacionResponse;
 import com.henry.commons.dto.huespedes.DataHuesped;
 import com.henry.commons.dto.huespedes.HuespedResponse;
@@ -52,7 +53,7 @@ public class ReservaMapper implements CommonMapper<ReservaRequest, ReservaRespon
         return new ReservaResponse(
                 entidad.getId(),
                 huespedResponseADatosHuesped(huespedResponse),
-                null,
+                habitacionResponseADatosHabitacion(habitacionResponse),
                 entidad.getEstadoReserva().name(),
                 StringCustomUtils.localDateTimeAString(entidad.getFechaReserva()),
                 StringCustomUtils.localDateTimeAString(entidad.getFechaEntrada()),
@@ -68,6 +69,18 @@ public class ReservaMapper implements CommonMapper<ReservaRequest, ReservaRespon
                 huespedResponse.nombre(),
                 huespedResponse.email(),
                 huespedResponse.telefono()
+        );
+    }
+
+    public DataHabitacion habitacionResponseADatosHabitacion(HabitacionResponse habitacionResponse) {
+        if (habitacionResponse == null) return null;
+
+        return new DataHabitacion(
+                habitacionResponse.numero(),
+                habitacionResponse.tipo(),
+                habitacionResponse.capacidad(),
+                habitacionResponse.precio(),
+                habitacionResponse.estadoHabitacion()
         );
     }
 

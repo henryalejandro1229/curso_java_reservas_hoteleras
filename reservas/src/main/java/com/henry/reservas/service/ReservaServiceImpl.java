@@ -1,7 +1,12 @@
 package com.henry.reservas.service;
 
+import com.henry.commons.client.HabitacionClient;
+import com.henry.commons.client.HuespedClient;
+import com.henry.commons.dto.habitaciones.HabitacionResponse;
+import com.henry.commons.dto.huespedes.HuespedResponse;
 import com.henry.commons.dto.reservas.ReservaRequest;
 import com.henry.commons.dto.reservas.ReservaResponse;
+import com.henry.commons.enums.EstadoHabitacion;
 import com.henry.commons.enums.EstadoRegistro;
 import com.henry.commons.enums.EstadoReserva;
 import com.henry.commons.exceptions.RecursoNoEncontradoException;
@@ -25,6 +30,10 @@ public class ReservaServiceImpl implements ReservaService {
 
     private final ReservaMapper reservaMapper;
 
+    private final HuespedClient huespedClient;
+
+    private final HabitacionClient habitacionClient;
+
     @Override
     @Transactional(readOnly = true)
     public List<ReservaResponse> listar() {
@@ -47,15 +56,21 @@ public class ReservaServiceImpl implements ReservaService {
     public ReservaResponse registrar(ReservaRequest request) {
         log.info("Registrando nueva reserva {}", request);
 
+        HuespedResponse huespedResponse = obtenerHuespedActivoPorId(request.idHuesped());
+
+        HabitacionResponse habitacionResponse = obtenerHabitacionActivaPorId(request.idHabitacion());
+
+        validarEstatusDisponibleHabitacion(habitacionResponse.idEstadoHabitacion());
+
         Reserva reserva = reservaMapper.requestAEntidad(request);
-        reserva.setHuesped(request.idHuesped());
-        reserva.setHabitacion(request.idHabitacion());
 
         reservaRepository.save(reserva);
 
+        actualizaHabitacionActivaPorId(habitacionResponse.id(), EstadoHabitacion.OCUPADA.getCodigo());
+
         log.info("Nueva reserva registrada");
 
-        return reservaMapper.entidadAResponse(reserva, null, null);
+        return reservaMapper.entidadAResponse(reserva, huespedResponse, habitacionResponse);
     }
 
     @Override
@@ -101,5 +116,33 @@ public class ReservaServiceImpl implements ReservaService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Reserva activa no encontrada con id: " + id
                 ));
+    }
+
+    private void validarEstatusDisponibleHabitacion(Long idEstatus) {
+        if (!EstadoHabitacion.obtenerEstadoHabitacionPorCodigo(idEstatus).equals(EstadoHabitacion.DISPONIBLE)) {
+            throw new IllegalStateException("La habitación no tiene un estado disponible para el registro de la reserva");
+        }
+    }
+
+    //Consumo de APIs servicio de habitaciones
+
+    private HabitacionResponse obtenerHabitacionActivaPorId(Long id) {
+        log.info("Buscando habitacion con id {} en el servicio remoto...", id);
+
+        return habitacionClient.obtenerHabitacionActivaPorId(id);
+    }
+
+    private void actualizaHabitacionActivaPorId(Long id, Long idHabitacion) {
+        log.info("Actualizando habitacion con id {} en el servicio remoto...", id);
+
+        habitacionClient.actualizarEstadoHabitacion(id, idHabitacion);
+    };
+
+    //Consumo de APIs servicio de huespedes
+
+    private HuespedResponse obtenerHuespedActivoPorId(Long id) {
+        log.info("Buscando huesped con id {} en el servicio remoto...", id);
+
+        return huespedClient.obtenerHuespedActivoPorId(id);
     }
 }
