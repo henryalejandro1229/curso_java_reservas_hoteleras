@@ -1,0 +1,17 @@
+package com.henry.auth.services;
+
+import com.henry.auth.dto.UsuarioRequest;
+import com.henry.auth.dto.UsuarioResponse;
+
+import java.util.Set;
+
+public interface UsuarioService {
+
+    Set<UsuarioResponse> listar();
+
+    UsuarioResponse registrar(UsuarioRequest request);
+
+    UsuarioResponse actualizar(String username, UsuarioRequest request);
+
+    UsuarioResponse eliminar(String username);
+}
