@@ -44,7 +44,7 @@ public enum EstadoReserva {
         return puedeCambiar().contains(nuevoEstado);
     }
 
-    public static EstadoReserva ObtenerEstadoReservaPorCodigo(Long codigo) {
+    public static EstadoReserva obtenerEstadoReservaPorCodigo(Long codigo) {
         for (EstadoReserva e : values()) {
             if(Objects.equals(e.codigo, codigo))
                 return e;

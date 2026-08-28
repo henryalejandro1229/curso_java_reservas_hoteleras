@@ -74,7 +74,7 @@ public class HabitacionServiceImpl implements HabitacionService {
     }
 
     @Override
-    public HabitacionResponse actualizar(HabitacionRequest request, long id) {
+    public HabitacionResponse actualizar(HabitacionRequest request, Long id) {
         Habitacion habitacion = obtenerHabitacionActivaOException(id);
 
         log.info("Actualizando habitación con id: {}", id);

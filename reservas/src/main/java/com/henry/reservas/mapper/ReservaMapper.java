@@ -28,6 +28,8 @@ public class ReservaMapper implements CommonMapper<ReservaRequest, ReservaRespon
                 .estadoReserva(EstadoReserva.CONFIRMADA)
                 .estadoRegistro(EstadoRegistro.ACTIVO)
                 .fechaReserva(LocalDateTime.now())
+                .fechaEntrada(request.fechaEntrada())
+                .fechaSalida(request.fechaSalida())
                 .build();
     }
 
@@ -58,7 +60,7 @@ public class ReservaMapper implements CommonMapper<ReservaRequest, ReservaRespon
                 StringCustomUtils.localDateTimeAString(entidad.getFechaReserva()),
                 StringCustomUtils.localDateTimeAString(entidad.getFechaEntrada()),
                 StringCustomUtils.localDateTimeAString(entidad.getFechaSalida()),
-                entidad.getFechaCancelacion() != null ? StringCustomUtils.localDateTimeAString(entidad.getFechaCancelacion()) : null
+                StringCustomUtils.localDateTimeAString(entidad.getFechaCancelacion())
         );
     }
 
