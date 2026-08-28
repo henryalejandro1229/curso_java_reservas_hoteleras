@@ -6,7 +6,6 @@ public record DataHabitacion(
         Short numero,
         String tipo,
         Short capacidad,
-        BigDecimal precio,
-        String estadoHabitacion
+        BigDecimal precio
 ) {
 }
