@@ -10,4 +10,6 @@ public interface ReservaService extends CrudService<ReservaRequest,ReservaRespon
 
     void validarHabitacionDisponible(Long idHabitacion);
 
+    void validarHuespedSinReservaEnCurso(Long idHuesped);
+
 }

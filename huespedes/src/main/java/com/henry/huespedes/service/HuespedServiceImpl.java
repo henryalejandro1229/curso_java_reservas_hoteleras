@@ -5,6 +5,7 @@ import com.henry.commons.dto.huespedes.HuespedRequest;
 import com.henry.commons.dto.huespedes.HuespedResponse;
 import com.henry.commons.enums.EstadoRegistro;
 import com.henry.commons.exceptions.EntidadRelacionadaException;
+import com.henry.commons.client.ReservaClient;
 import com.henry.commons.exceptions.RecursoNoEncontradoException;
 import com.henry.huespedes.entity.Huesped;
 import com.henry.huespedes.mapper.HuespedMapper;
@@ -24,6 +25,7 @@ public class HuespedServiceImpl implements HuespedService {
 
     private final HuespedRepository huespedRepository;
     private final HuespedMapper huespedMapper;
+    private final ReservaClient reservaClient;
 
     @Override
     public HuespedResponse obtenerHuespedPorIdSinEstado(Long id) {
@@ -74,6 +76,7 @@ public class HuespedServiceImpl implements HuespedService {
     @Override
     public void eliminar(Long id) {
         Huesped huesped = obtenerHuespedActivoOException(id);
+        reservaClient.validarHuespedSinReservaEnCurso(id);
         log.info("eliminando huesped activo {}", id);
         huesped.eliminar();
         huespedRepository.save(huesped);
