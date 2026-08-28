@@ -4,6 +4,11 @@ server:
 spring:
   application:
     name: gateway
+  security:
+    cauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/cauth2/jwks
   cloud:
     gateway:
       server:
