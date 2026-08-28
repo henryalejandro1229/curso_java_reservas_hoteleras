@@ -148,8 +148,6 @@ public class ReservaServiceImpl implements ReservaService {
 
         Reserva reserva = obtenerReservaActivaOExcepcion(idReserva);
 
-        reserva.validarActualizacionPermitida();
-
         reserva.actualizarEstadoReserva(EstadoReserva.obtenerEstadoReservaPorCodigo(idEstado));
 
         actualizarEstadoHabitacion(reserva.getIdHabitacion(), obtenerNuevoEstadoHabitacion(idEstado));
