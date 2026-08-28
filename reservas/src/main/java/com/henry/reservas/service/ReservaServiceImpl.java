@@ -43,7 +43,7 @@ public class ReservaServiceImpl implements ReservaService {
     public List<ReservaResponse> listar() {
         log.info("Listando todas las reservas activas");
 
-        List<Reserva> reservas = reservaRepository.findByEstadoRegistro(EstadoRegistro.ACTIVO);
+        List<Reserva> reservas = reservaRepository.findByEstadoRegistroOrderByFechaEntradaAsc(EstadoRegistro.ACTIVO);
         Map<Long, HuespedResponse> huespedesPorId = new HashMap<>();
         Map<Long, HabitacionResponse> habitacionesPorId = new HashMap<>();
 
