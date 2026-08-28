@@ -114,18 +114,25 @@ public class ReservaServiceImpl implements ReservaService {
         log.info("Actualizando reserva con id: {}", id);
 
         Reserva reserva = obtenerReservaActivaOExcepcion(id);
+        Long idHabitacionAnterior = reserva.getIdHabitacion();
 
-        reserva.validarActualizacionPermitida();
+        HuespedResponse huespedResponse = validarHuespedDisponible(request.idHuesped());
+        HabitacionResponse habitacionResponse = obtenerHabitacionActivaPorId(request.idHabitacion());
 
-        HuespedResponse huespedResponse = obtenerHuespedPorIdSinEstado(reserva.getIdHuesped());
+        if (!idHabitacionAnterior.equals(request.idHabitacion()))
+            validarEstatusDisponibleHabitacion(habitacionResponse.idEstadoHabitacion());
 
-        if (!reserva.getIdHuesped().equals(request.idHuesped())
-                || !reserva.getIdHabitacion().equals(request.idHabitacion()))
-            throw new IllegalStateException("El huésped y la habitación de una reserva no pueden modificarse");
+        reserva.actualizar(
+                request.idHuesped(),
+                request.idHabitacion(),
+                request.fechaEntrada(),
+                request.fechaSalida()
+        );
 
-        reserva.actualizar(request.fechaEntrada(), request.fechaSalida());
-
-        HabitacionResponse habitacionResponse = obtenerHabitacionActivaPorId(reserva.getIdHabitacion());
+        if (!idHabitacionAnterior.equals(request.idHabitacion())) {
+            actualizarEstadoHabitacion(idHabitacionAnterior, EstadoHabitacion.DISPONIBLE.getCodigo());
+            actualizarEstadoHabitacion(request.idHabitacion(), EstadoHabitacion.OCUPADA.getCodigo());
+        }
 
         log.info("Reserva con id {} actualizada correctamente", id);
 
