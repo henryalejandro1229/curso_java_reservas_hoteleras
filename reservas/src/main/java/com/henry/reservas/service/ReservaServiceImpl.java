@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -39,10 +41,29 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     @Transactional(readOnly = true)
     public List<ReservaResponse> listar() {
-        log.info("Listando todas las habitaciones activas");
+        log.info("Listando todas las reservas activas");
 
-        return reservaRepository.findByEstadoRegistro(EstadoRegistro.ACTIVO).stream()
-                .map(reservaMapper::entidadAResponse)
+        List<Reserva> reservas = reservaRepository.findByEstadoRegistro(EstadoRegistro.ACTIVO);
+        Map<Long, HuespedResponse> huespedesPorId = new HashMap<>();
+        Map<Long, HabitacionResponse> habitacionesPorId = new HashMap<>();
+
+        return reservas.stream()
+                .map(reserva -> {
+                    HuespedResponse huespedResponse = huespedesPorId.computeIfAbsent(
+                            reserva.getIdHuesped(),
+                            this::obtenerHuespedPorIdSinEstado
+                    );
+                    HabitacionResponse habitacionResponse = habitacionesPorId.computeIfAbsent(
+                            reserva.getIdHabitacion(),
+                            this::obtenerHabitacionPorIdSinEstado
+                    );
+
+                    return reservaMapper.entidadAResponse(
+                            reserva,
+                            huespedResponse,
+                            habitacionResponse
+                    );
+                })
                 .toList();
     }
 
