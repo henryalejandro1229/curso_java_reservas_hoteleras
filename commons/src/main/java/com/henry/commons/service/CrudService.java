@@ -10,7 +10,7 @@ public interface CrudService<RQ, RS>  {
 
     RS registrar(RQ request);
 
-    RS actualizar(RQ request, long id);
+    RS actualizar(RQ request, Long id);
 
     void eliminar(Long id);
 }
