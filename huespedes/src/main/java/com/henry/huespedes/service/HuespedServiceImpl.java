@@ -55,7 +55,7 @@ public class HuespedServiceImpl implements HuespedService {
     }
 
     @Override
-    public HuespedResponse actualizar(HuespedRequest request, long id) {
+    public HuespedResponse actualizar(HuespedRequest request, Long id) {
         Huesped huesped = obtenerHuespedActivoOException(id);
         log.info("Actualizando huesped activo {}", huesped.getId());
         validarCambiosUnicos(request, id);
