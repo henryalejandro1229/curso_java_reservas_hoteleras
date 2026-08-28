@@ -43,7 +43,7 @@ public class ReservaServiceImpl implements ReservaService {
     public List<ReservaResponse> listar() {
         log.info("Listando todas las reservas activas");
 
-        List<Reserva> reservas = reservaRepository.findByEstadoRegistro(EstadoRegistro.ACTIVO);
+        List<Reserva> reservas = reservaRepository.findByEstadoRegistroOrderByFechaEntradaAsc(EstadoRegistro.ACTIVO);
         Map<Long, HuespedResponse> huespedesPorId = new HashMap<>();
         Map<Long, HabitacionResponse> habitacionesPorId = new HashMap<>();
 
@@ -151,6 +151,20 @@ public class ReservaServiceImpl implements ReservaService {
         reserva.actualizarEstadoReserva(EstadoReserva.obtenerEstadoReservaPorCodigo(idEstado));
 
         actualizarEstadoHabitacion(reserva.getIdHabitacion(), obtenerNuevoEstadoHabitacion(idEstado));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void validarHabitacionDisponible(Long idHabitacion) {
+        boolean tieneReservaActiva = reservaRepository.existsByIdHabitacionAndEstadoRegistroAndEstadoReservaIn(
+                idHabitacion,
+                EstadoRegistro.ACTIVO,
+                List.of(EstadoReserva.CONFIRMADA, EstadoReserva.EN_CURSO)
+        );
+
+        if (tieneReservaActiva) {
+            throw new IllegalStateException("La habitación ya tiene una reserva confirmada o en curso");
+        }
     }
 
     @Override
