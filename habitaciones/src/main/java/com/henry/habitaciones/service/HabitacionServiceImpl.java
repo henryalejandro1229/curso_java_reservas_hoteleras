@@ -32,9 +32,21 @@ public class HabitacionServiceImpl implements HabitacionService {
     @Override
     @Transactional(readOnly = true)
     public List<HabitacionResponse> listar() {
-        log.info("Listando todas las habitaciones activas");
+        return listar(null);
+        }
 
-        return habitacionRepository.findByEstadoRegistro(EstadoRegistro.ACTIVO).stream()
+        @Override
+        @Transactional(readOnly = true)
+        public List<HabitacionResponse> listar(Boolean disponibles) {
+        log.info("Listando habitaciones activas{}", Boolean.TRUE.equals(disponibles)
+            ? " y disponibles" : "");
+
+        List<Habitacion> habitaciones = Boolean.TRUE.equals(disponibles)
+            ? habitacionRepository.findByEstadoRegistroAndEstadoHabitacion(
+                EstadoRegistro.ACTIVO, EstadoHabitacion.DISPONIBLE)
+            : habitacionRepository.findByEstadoRegistro(EstadoRegistro.ACTIVO);
+
+        return habitaciones.stream()
                 .map(habitacionMapper::entidadAResponse)
                 .toList();
     }
