@@ -10,11 +10,13 @@ import java.util.Optional;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
-    List<Reserva> findByEstadoRegistro(EstadoRegistro estadoRegistro);
+    List<Reserva> findByEstadoRegistroOrderByFechaEntradaAsc(EstadoRegistro estadoRegistro);
 
     Optional<Reserva> findByIdAndEstadoRegistro(Long id, EstadoRegistro estadoRegistro);
 
     boolean existsByIdHuespedAndEstadoRegistroAndEstadoReservaIn(Long idHuesped, EstadoRegistro estadoRegistro, List<EstadoReserva> estados);
+
+    boolean existsByIdHabitacionAndEstadoRegistroAndEstadoReservaIn(Long idHabitacion, EstadoRegistro estadoRegistro, List<EstadoReserva> estados);
 
     boolean existsByIdHabitacionAndEstadoReservaInAndIdNot(Long idHabitacion, List<EstadoReserva> estadoReserva, Long idReserva);
 }

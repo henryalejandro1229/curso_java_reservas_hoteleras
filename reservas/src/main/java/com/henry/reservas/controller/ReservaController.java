@@ -7,6 +7,7 @@ import com.henry.reservas.service.ReservaService;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,13 @@ public class ReservaController extends CommonController<ReservaRequest, ReservaR
 
     public ReservaController(ReservaService service) {
         super(service);
+    }
+
+    @GetMapping("/id-habitacion/{id}")
+    public ResponseEntity<Void> validarHabitacionDisponible(
+            @PathVariable @Positive(message = "El id debe ser positivo") Long id) {
+        service.validarHabitacionDisponible(id);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/estado/{idEstado}")

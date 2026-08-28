@@ -81,8 +81,7 @@ public class ReservaMapper implements CommonMapper<ReservaRequest, ReservaRespon
                 habitacionResponse.numero(),
                 habitacionResponse.tipo(),
                 habitacionResponse.capacidad(),
-                habitacionResponse.precio(),
-                habitacionResponse.estadoHabitacion()
+                habitacionResponse.precio()
         );
     }
 

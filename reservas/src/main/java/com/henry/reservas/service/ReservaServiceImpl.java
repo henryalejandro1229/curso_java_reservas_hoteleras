@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -39,10 +41,29 @@ public class ReservaServiceImpl implements ReservaService {
     @Override
     @Transactional(readOnly = true)
     public List<ReservaResponse> listar() {
-        log.info("Listando todas las habitaciones activas");
+        log.info("Listando todas las reservas activas");
 
-        return reservaRepository.findByEstadoRegistro(EstadoRegistro.ACTIVO).stream()
-                .map(reservaMapper::entidadAResponse)
+        List<Reserva> reservas = reservaRepository.findByEstadoRegistroOrderByFechaEntradaAsc(EstadoRegistro.ACTIVO);
+        Map<Long, HuespedResponse> huespedesPorId = new HashMap<>();
+        Map<Long, HabitacionResponse> habitacionesPorId = new HashMap<>();
+
+        return reservas.stream()
+                .map(reserva -> {
+                    HuespedResponse huespedResponse = huespedesPorId.computeIfAbsent(
+                            reserva.getIdHuesped(),
+                            this::obtenerHuespedPorIdSinEstado
+                    );
+                    HabitacionResponse habitacionResponse = habitacionesPorId.computeIfAbsent(
+                            reserva.getIdHabitacion(),
+                            this::obtenerHabitacionPorIdSinEstado
+                    );
+
+                    return reservaMapper.entidadAResponse(
+                            reserva,
+                            huespedResponse,
+                            habitacionResponse
+                    );
+                })
                 .toList();
     }
 
@@ -127,11 +148,23 @@ public class ReservaServiceImpl implements ReservaService {
 
         Reserva reserva = obtenerReservaActivaOExcepcion(idReserva);
 
-        reserva.validarActualizacionPermitida();
-
         reserva.actualizarEstadoReserva(EstadoReserva.obtenerEstadoReservaPorCodigo(idEstado));
 
         actualizarEstadoHabitacion(reserva.getIdHabitacion(), obtenerNuevoEstadoHabitacion(idEstado));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void validarHabitacionDisponible(Long idHabitacion) {
+        boolean tieneReservaActiva = reservaRepository.existsByIdHabitacionAndEstadoRegistroAndEstadoReservaIn(
+                idHabitacion,
+                EstadoRegistro.ACTIVO,
+                List.of(EstadoReserva.CONFIRMADA, EstadoReserva.EN_CURSO)
+        );
+
+        if (tieneReservaActiva) {
+            throw new IllegalStateException("La habitación ya tiene una reserva confirmada o en curso");
+        }
     }
 
     @Override
