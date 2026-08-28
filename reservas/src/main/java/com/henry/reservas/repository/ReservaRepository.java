@@ -1,6 +1,7 @@
 package com.henry.reservas.repository;
 
 import com.henry.commons.enums.EstadoRegistro;
+import com.henry.commons.enums.EstadoReserva;
 import com.henry.reservas.entity.Reserva;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,4 +14,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     Optional<Reserva> findByIdAndEstadoRegistro(Long id, EstadoRegistro estadoRegistro);
 
+    boolean existsByIdHuespedAndEstadoRegistroAndEstadoReservaIn(Long idHuesped, EstadoRegistro estadoRegistro, List<EstadoReserva> estados);
+
+    boolean existsByIdHabitacionAndEstadoReservaAndIdNot(Long idHabitacion, List<EstadoReserva> estadoReserva, Long idReserva);
 }
