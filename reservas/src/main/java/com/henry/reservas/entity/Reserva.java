@@ -73,7 +73,7 @@ public class Reserva {
                             + " no puede eliminarse");
     }
 
-    public void validarActualizacionPermitida() {
+    private void validarActualizacionPermitida() {
         validarNoEliminado();
 
         if (!EstadoReserva.CONFIRMADA.equals(estadoReserva))
@@ -83,17 +83,22 @@ public class Reserva {
     }
 
     public void actualizar(
-            Long idHuesped,
-            Long idHabitacion,
-            LocalDateTime nuevaFechaReserva,
-            LocalDateTime nuevaFechaEntrada
+            Long nuevoIdHuesped,
+            Long nuevoIdHabitacion,
+            LocalDateTime nuevaFechaEntrada,
+            LocalDateTime nuevaFechaSalida
     ) {
         validarActualizacionPermitida();
-        validarDatos(idHuesped, idHabitacion);
-        this.idHuesped = idHuesped;
-        this.idHabitacion = idHabitacion;
-        this.fechaReserva = nuevaFechaReserva;
+        validarDatos(nuevoIdHuesped, nuevoIdHabitacion);
+
+        if (!nuevaFechaEntrada.isBefore(nuevaFechaSalida))
+            throw new IllegalArgumentException(
+                    "La fecha de salida debe ser posterior a la fecha de entrada");
+
+        this.idHuesped = nuevoIdHuesped;
+        this.idHabitacion = nuevoIdHabitacion;
         this.fechaEntrada = nuevaFechaEntrada;
+        this.fechaSalida = nuevaFechaSalida;
     }
 
     private static void validarId(Long id, String campo){
@@ -105,26 +110,6 @@ public class Reserva {
             Long  idHabitacion) {
         validarId(idHuesped, "huesped");
         validarId(idHabitacion, "habitaion");
-    }
-
-    private void actualizarReservaEnCurso(
-            LocalDateTime nuevaFechaEntrada,
-            LocalDateTime nuevaFechaSalida
-    ){
-        if (nuevaFechaEntrada != null && !nuevaFechaEntrada.equals(this.fechaEntrada))
-            throw new IllegalStateException(
-                    "No se puede modificar la fecha de entrada despues del check-in"
-            );
-        validarFechaSalida(nuevaFechaSalida);
-        this.fechaSalida = nuevaFechaSalida;
-    }
-
-    private void validarFechaSalida(LocalDateTime nuevaFechaSalida){
-        if (nuevaFechaSalida == null)
-            throw new IllegalArgumentException("La fecha de saida es obligatoria");
-
-        if (!fechaEntrada.isBefore(nuevaFechaSalida))
-            throw new IllegalArgumentException("La fecha de salida debe ser posterior a la fecha de entrada ");
     }
 
     public void actualizarEstadoReserva(EstadoReserva nuevoEstado) {
@@ -145,12 +130,7 @@ public class Reserva {
     }
 
     public void eliminar() {
-        validarNoEliminado();
-
-        if (estadoReserva != EstadoReserva.CONFIRMADA)
-            throw new IllegalStateException(
-                    "Solamente se puede eliminar una reserva confirmada"
-            );
+        validarEliminacionPermitida();
         this.estadoRegistro = EstadoRegistro.ELIMINADO;
     }
 }

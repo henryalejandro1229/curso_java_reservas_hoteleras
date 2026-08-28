@@ -9,4 +9,7 @@ public interface ReservaClient {
 
     @GetMapping("/id-habitacion/{id}")
     Void validarHabitacionDisponible(@PathVariable Long id);
+
+    @GetMapping("/huesped/{id}/en-curso")
+    Void validarHuespedSinReservaEnCurso(@PathVariable Long id);
 }

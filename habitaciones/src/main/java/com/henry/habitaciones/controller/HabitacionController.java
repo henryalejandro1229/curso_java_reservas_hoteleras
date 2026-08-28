@@ -10,7 +10,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @Validated
@@ -18,6 +21,13 @@ public class HabitacionController extends CommonController<HabitacionRequest, Ha
 
     public HabitacionController(HabitacionService service) {
         super(service);
+    }
+
+    @GetMapping(params = "disponibles")
+    public ResponseEntity<List<HabitacionResponse>> listar(
+            @RequestParam(required = false) Boolean disponibles
+    ) {
+        return ResponseEntity.ok(service.listar(disponibles));
     }
 
     @GetMapping("/id-habitacion/{id}")

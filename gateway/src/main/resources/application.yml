@@ -5,10 +5,10 @@ spring:
   application:
     name: gateway
   security:
-    cauth2:
+    oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:9000/cauth2/jwks
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
   cloud:
     gateway:
       server:

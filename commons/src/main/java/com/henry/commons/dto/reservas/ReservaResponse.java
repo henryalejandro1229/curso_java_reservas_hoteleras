@@ -5,6 +5,8 @@ import com.henry.commons.dto.huespedes.DataHuesped;
 
 public record ReservaResponse(
     Long id,
+    Long idHuesped,
+    Long idHabitacion,
     DataHuesped huesped,
     DataHabitacion habitacion,
     String estadoReserva,

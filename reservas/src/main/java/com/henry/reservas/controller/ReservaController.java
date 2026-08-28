@@ -35,4 +35,11 @@ public class ReservaController extends CommonController<ReservaRequest, ReservaR
         service.actualizarEstadoReserva(id, idEstado);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/huesped/{id}/en-curso")
+    public ResponseEntity<Void> validarHuespedSinReservaEnCurso(
+            @PathVariable @Positive(message = "El id debe ser positivo") Long id) {
+        service.validarHuespedSinReservaEnCurso(id);
+        return ResponseEntity.ok().build();
+    }
 }
