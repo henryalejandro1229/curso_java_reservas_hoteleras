@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import com.henry.commons.enums.EstadoRegistro;
 import com.henry.commons.enums.EstadoReserva;
 
+
+import com.henry.commons.utils.ValoresNumericosUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -59,10 +61,10 @@ public class Reserva {
 
     public void validarNoEliminado() {
         if (this.estadoRegistro == EstadoRegistro.ELIMINADO)
-            throw new IllegalArgumentException("La reserva ya fue eliminada");
+            throw new IllegalStateException("La reserva ya esta eliminada");
     }
 
-    private void validarEliminacionPermitida(){
+    private void validarEliminacionPermitida() {
         validarNoEliminado();
 
         if (!estadoReserva.isEliminable())
@@ -71,7 +73,7 @@ public class Reserva {
                             + " no puede eliminarse");
     }
 
-    private void validarActualizacionPermitida(){
+    public void validarActualizacionPermitida() {
         validarNoEliminado();
 
         if (!EstadoReserva.CONFIRMADA.equals(estadoReserva))
@@ -80,31 +82,75 @@ public class Reserva {
                             + " no puede actualizarse");
     }
 
-    public void actualizar(Long idHuesped, Long idHabitacion) {
-        this.validarNoEliminado();
+    public void actualizar(
+            Long idHuesped,
+            Long idHabitacion,
+            LocalDateTime nuevaFechaReserva,
+            LocalDateTime nuevaFechaEntrada
+    ) {
         validarActualizacionPermitida();
-
+        validarDatos(idHuesped, idHabitacion);
         this.idHuesped = idHuesped;
         this.idHabitacion = idHabitacion;
+        this.fechaReserva = nuevaFechaReserva;
+        this.fechaEntrada = nuevaFechaEntrada;
+    }
+
+    private static void validarId(Long id, String campo){
+        ValoresNumericosUtils.validarLongPositivo(id, "El id del " + campo + " es requerido y debe ser positivo");
+    }
+
+    public static void validarDatos(
+            Long idHuesped,
+            Long  idHabitacion) {
+        validarId(idHuesped, "huesped");
+        validarId(idHabitacion, "habitaion");
+    }
+
+    private void actualizarReservaEnCurso(
+            LocalDateTime nuevaFechaEntrada,
+            LocalDateTime nuevaFechaSalida
+    ){
+        if (nuevaFechaEntrada != null && !nuevaFechaEntrada.equals(this.fechaEntrada))
+            throw new IllegalStateException(
+                    "No se puede modificar la fecha de entrada despues del check-in"
+            );
+        validarFechaSalida(nuevaFechaSalida);
+        this.fechaSalida = nuevaFechaSalida;
+    }
+
+    private void validarFechaSalida(LocalDateTime nuevaFechaSalida){
+        if (nuevaFechaSalida == null)
+            throw new IllegalArgumentException("La fecha de saida es obligatoria");
+
+        if (!fechaEntrada.isBefore(nuevaFechaSalida))
+            throw new IllegalArgumentException("La fecha de salida debe ser posterior a la fecha de entrada ");
     }
 
     public void actualizarEstadoReserva(EstadoReserva nuevoEstado) {
-        this.validarNoEliminado();
-        validarActualizacionPermitida();
+        validarNoEliminado();
 
-        if (estadoReserva == null)
-            throw new IllegalArgumentException("El estado de reserva es requerido");
+        if (nuevoEstado == null)
+            throw new IllegalArgumentException("El nuevo estado de la reserva es obligatorio");
 
         if (!estadoReserva.puedeCambiarA(nuevoEstado))
-            throw new IllegalStateException("La cita con estado "
-                    + estadoReserva + " solo puede cambiar a: "
-                    + estadoReserva.puedeCambiar());
+            throw new IllegalStateException("La reserva con estado "
+                    + estadoReserva + "no puede cambiar a " + nuevoEstado);
 
         this.estadoReserva = nuevoEstado;
+
+        if (nuevoEstado == EstadoReserva.CANCELADA){
+            this.fechaCancelacion = LocalDateTime.now();
+        }
     }
 
     public void eliminar() {
-        validarEliminacionPermitida();
+        validarNoEliminado();
+
+        if (estadoReserva != EstadoReserva.CONFIRMADA)
+            throw new IllegalStateException(
+                    "Solamente se puede eliminar una reserva confirmada"
+            );
         this.estadoRegistro = EstadoRegistro.ELIMINADO;
     }
 }
