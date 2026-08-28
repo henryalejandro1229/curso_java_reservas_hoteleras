@@ -39,6 +39,8 @@ public class ReservaMapper implements CommonMapper<ReservaRequest, ReservaRespon
 
         return new ReservaResponse(
                 entidad.getId(),
+                entidad.getIdHuesped(),
+                entidad.getIdHabitacion(),
                 null,
                 null,
                 entidad.getEstadoReserva().name(),
@@ -54,6 +56,8 @@ public class ReservaMapper implements CommonMapper<ReservaRequest, ReservaRespon
 
         return new ReservaResponse(
                 entidad.getId(),
+                entidad.getIdHuesped(),
+                entidad.getIdHabitacion(),
                 huespedResponseADatosHuesped(huespedResponse),
                 habitacionResponseADatosHabitacion(habitacionResponse),
                 entidad.getEstadoReserva().name(),
