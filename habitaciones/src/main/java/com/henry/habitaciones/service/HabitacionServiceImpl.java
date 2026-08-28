@@ -1,5 +1,6 @@
 package com.henry.habitaciones.service;
 
+import com.henry.commons.client.ReservaClient;
 import com.henry.commons.dto.habitaciones.HabitacionRequest;
 import com.henry.commons.dto.habitaciones.HabitacionResponse;
 import com.henry.commons.enums.EstadoHabitacion;
@@ -25,6 +26,8 @@ public class HabitacionServiceImpl implements HabitacionService {
     private final HabitacionRepository habitacionRepository;
 
     private final HabitacionMapper habitacionMapper;
+
+    private final ReservaClient reservaClient;
 
     @Override
     @Transactional(readOnly = true)
@@ -112,6 +115,8 @@ public class HabitacionServiceImpl implements HabitacionService {
         Habitacion habitacion = obtenerHabitacionActivaOException(id);
 
         log.info("Eliminando habitación con id: {}", id);
+
+        reservaClient.validarHabitacionDisponible(id);
 
         habitacion.eliminar();
 

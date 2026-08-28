@@ -16,5 +16,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     boolean existsByIdHuespedAndEstadoRegistroAndEstadoReservaIn(Long idHuesped, EstadoRegistro estadoRegistro, List<EstadoReserva> estados);
 
+    boolean existsByIdHabitacionAndEstadoRegistroAndEstadoReservaIn(Long idHabitacion, EstadoRegistro estadoRegistro, List<EstadoReserva> estados);
+
     boolean existsByIdHabitacionAndEstadoReservaInAndIdNot(Long idHabitacion, List<EstadoReserva> estadoReserva, Long idReserva);
 }
