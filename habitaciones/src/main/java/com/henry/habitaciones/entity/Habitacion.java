@@ -93,6 +93,8 @@ public class Habitacion {
 
     public void eliminar() {
         validarNoEliminado();
+        if (this.estadoHabitacion == EstadoHabitacion.OCUPADA)
+            throw new IllegalStateException("Una habitación ocupada no puede eliminarse");
         this.estadoRegistro = EstadoRegistro.ELIMINADO;
     }
 }

@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,12 @@ public class ReservaServiceImpl implements ReservaService {
     private final HuespedClient huespedClient;
 
     private final HabitacionClient habitacionClient;
+
+    private static final List<EstadoReserva> ESTADO_ACTIVOS =
+            List.of(
+                    EstadoReserva.CONFIRMADA,
+                    EstadoReserva.EN_CURSO
+            );
 
     @Override
     @Transactional(readOnly = true)
@@ -112,27 +117,15 @@ public class ReservaServiceImpl implements ReservaService {
 
         reserva.validarActualizacionPermitida();
 
-        validaFechaEntradaSalida(request);
-
         HuespedResponse huespedResponse = obtenerHuespedPorIdSinEstado(reserva.getIdHuesped());
 
+        if (!reserva.getIdHuesped().equals(request.idHuesped())
+                || !reserva.getIdHabitacion().equals(request.idHabitacion()))
+            throw new IllegalStateException("El huésped y la habitación de una reserva no pueden modificarse");
+
+        reserva.actualizar(request.fechaEntrada(), request.fechaSalida());
+
         HabitacionResponse habitacionResponse = obtenerHabitacionActivaPorId(reserva.getIdHabitacion());
-
-        boolean esNuevaHabitacion = !reserva.getIdHabitacion().equals(request.idHabitacion());
-
-        if (esNuevaHabitacion) validarEstatusDisponibleHabitacion(habitacionResponse.idEstadoHabitacion());
-
-        reserva.actualizar(
-                request.idHuesped(),
-                request.idHabitacion(),
-                request.fechaEntrada(),
-                request.fechaSalida()
-        );
-
-        if (esNuevaHabitacion) {
-            actualizarEstadoHabitacion(habitacionResponse.id(), EstadoHabitacion.OCUPADA.getCodigo());
-            actualizarEstadoHabitacion(reserva.getIdHabitacion(), EstadoHabitacion.DISPONIBLE.getCodigo());
-        }
 
         log.info("Reserva con id {} actualizada correctamente", id);
 
@@ -168,6 +161,16 @@ public class ReservaServiceImpl implements ReservaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public void validarHuespedSinReservaEnCurso(Long idHuesped) {
+        boolean tieneReservaEnCurso = reservaRepository.existsByIdHuespedAndEstadoRegistroAndEstadoReservaIn(
+                idHuesped, EstadoRegistro.ACTIVO, ESTADO_ACTIVOS);
+
+        if (tieneReservaEnCurso)
+            throw new EntidadRelacionadaException("El huesped ya tiene una reserva en curso");
+    }
+
+    @Override
     public void eliminar(Long id) {
         Reserva reserva = obtenerReservaActivaOExcepcion(id);
 
@@ -196,25 +199,8 @@ public class ReservaServiceImpl implements ReservaService {
         }
     }
 
-    private static final List<EstadoReserva> ESTADO_ACTIVOS =
-            List.of(
-                    EstadoReserva.EN_CURSO
-            );
-
     private HuespedResponse validarHuespedDisponible(Long idHuesped){
-        HuespedResponse huesped = huespedClient.obtenerHuespedActivoPorId(idHuesped);
-
-        boolean tieneReservaActiva = reservaRepository.existsByIdHuespedAndEstadoRegistroAndEstadoReservaIn(
-                idHuesped,
-                EstadoRegistro.ACTIVO,
-                ESTADO_ACTIVOS
-
-        );
-
-        if(tieneReservaActiva)
-            throw new EntidadRelacionadaException("El huesped ya tiene una reserva en curso");
-
-        return huesped;
+        return huespedClient.obtenerHuespedActivoPorId(idHuesped);
     }
 
     private Long obtenerNuevoEstadoHabitacion(Long idEstadoReserva){
@@ -245,12 +231,6 @@ public class ReservaServiceImpl implements ReservaService {
     };
 
     //Consumo de APIs servicio de huespedes
-
-    private HuespedResponse obtenerHuespedActivoPorId(Long id) {
-        log.info("Buscando huesped activo con id {} en el servicio remoto...", id);
-
-        return huespedClient.obtenerHuespedActivoPorId(id);
-    }
 
     private HuespedResponse obtenerHuespedPorIdSinEstado(Long id){
         log.info("Buscando huesped con id {} en el servicio remoto...", id);
