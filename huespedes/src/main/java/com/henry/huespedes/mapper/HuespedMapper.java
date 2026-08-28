@@ -30,10 +30,9 @@ public class HuespedMapper implements CommonMapper<HuespedRequest, HuespedRespon
         if (entidad == null) return null;
         return new HuespedResponse(
                 entidad.getId(),
-                String.join(" ",
-                        entidad.getNombre(),
-                        entidad.getApellidoPaterno(),
-                        entidad.getApellidoMaterno()),
+                entidad.getNombre(),
+                entidad.getApellidoPaterno(),
+                entidad.getApellidoMaterno(),
                 entidad.getNacionalidad(),
                 entidad.getEmail(),
                 entidad.getTelefono(),
